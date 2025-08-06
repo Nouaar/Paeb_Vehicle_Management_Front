@@ -7,3 +7,11 @@
   background-repeat: no-repeat;
 
 }
+
+
+.logo-background {
+  background-image: url('/images/Logo_paeb.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+
+}
