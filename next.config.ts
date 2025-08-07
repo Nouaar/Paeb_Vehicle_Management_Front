@@ -1,8 +1,13 @@
+/** @type {import('next').NextConfig} */
 const nextConfig = {
+  devIndicators: {
+    buildActivity: false,
+  },
+  allowedDevOrigins: ['http://192.168.0.110'],
+
   experimental: {
     turbo: false,
-    devIndicators: false
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
