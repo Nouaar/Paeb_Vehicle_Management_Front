@@ -1,13 +1,16 @@
 "use client";
 
 import React from "react";
+import Fiche_Entretien from "./Fiche_Entretien";
 
 export default function Home() {
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
-      <h1 className="text-3xl md:text-4xl font-bold text-center text-gray-800">
-        Welcome to the Vehicle Management System
-      </h1>
+  return (<div
+      className="min-h-screen bg-cover bg-center flex items-center justify-center"
+      style={{
+        backgroundImage: 'url("/images/background_cars.jpg")', 
+      }}
+    >
+     
     </div>
   );
 }
