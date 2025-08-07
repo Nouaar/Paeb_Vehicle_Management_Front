@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import ROUTES from "../router"; // adjust path if needed
+import ROUTES from "../../router"; // adjust path if needed
 
 export default function Login() {
   const [email, setEmail] = useState("");
