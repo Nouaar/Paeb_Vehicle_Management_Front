@@ -1,2 +1,17 @@
 @import "tailwindcss";
 
+.login-background {
+  background-image: url('/images/background_cars.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+}
+
+
+.logo-background {
+  background-image: url('/images/Logo_paeb.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+
+}
