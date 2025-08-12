@@ -6,7 +6,7 @@ const nextConfig = {
   allowedDevOrigins: ['http://192.168.0.110'],
 
   experimental: {
-    turbo: false,
+    turbo: true,
   },
 };
 
