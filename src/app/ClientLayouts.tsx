@@ -6,27 +6,38 @@ import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/layouts/Navbar";
 import Footer from "@/components/layouts/Footer";
 import UtilityNavbar from "@/components/layouts/UtilityNavbar";
+import { SpinnerLoading } from "@/components/ui/SpinnerLoading";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
+const { user, loading } = useAuth(); 
   const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
-    if (!user && pathname !== "/auth/login") {
-      router.replace("/auth/login");
+    if (!loading) { 
+      if (!user && pathname !== "/auth/login") {
+        router.replace("/auth/login");
+      }
+      if (user && pathname === "/auth/login") {
+        router.replace("/");
+      }
     }
-    if (user && pathname === "/auth/login") {
-      router.replace("/");
-    }
-  }, [user, pathname, router]);
+  }, [user, pathname, router, loading]);
+
+  if (loading) {
+    return <SpinnerLoading />; 
+  }
 
   const isLoginPage = pathname === "/auth/login";
 
   return (
     <>
-      {!isLoginPage && user && <Navbar />}
-      {!isLoginPage && user && <UtilityNavbar />}
+      {!isLoginPage && user && (
+        <>
+          <Navbar />
+          <UtilityNavbar />
+        </>
+      )}
       <main className="flex-grow">{children}</main>
       {!isLoginPage && user && <Footer />}
     </>

@@ -3,6 +3,8 @@
 import React, { useState , FormEvent } from "react";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/axios";
+import { SpinnerLoading } from "@/components/ui/SpinnerLoading";
+import { loginAccount } from "@/services/auth";
 
 export default function Login() {
   const { login } = useAuth(); 
@@ -17,7 +19,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await api.post("/auth/login", { email, password });
+      const response = await loginAccount(email, password);
       login(response.data.token); 
       console.log("Login successful:", response.data);
      }catch(err : any) {
@@ -78,7 +80,7 @@ export default function Login() {
           disabled={loading}
           className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 disabled:opacity-50"
         >
-          {loading ? "Logging in..." : "Login"}
+          {loading ? <SpinnerLoading />: "Login"}
         </button>
       </form>
     </div>

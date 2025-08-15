@@ -9,22 +9,34 @@ type AuthContextType = {
   user: User;
   login: (token: string) => void;
   logout: () => void;
+  loading : boolean ;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
+    try {
     const token = localStorage.getItem("token");
     if (token) setUser({ token });
+
+    }catch(error) {
+      setUser(null) ; 
+      console.error("Error retrieving token from localStorage:", error);
+    }
+    finally {
+      setLoading(false)
+    }
   }, []);
 
   const login = (token: string) => {
     localStorage.setItem("token", token);
     setUser({ token });
+    setLoading(false);
     router.push("/"); 
   };
 
@@ -34,7 +46,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/login");
   };
 
-  const value = useMemo(() => ({ user, login, logout }), [user]);
+  
+
+  const value = useMemo(() => ({ user, login, logout , loading }), [user]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
