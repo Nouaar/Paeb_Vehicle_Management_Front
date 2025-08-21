@@ -26,7 +26,7 @@ export default function UtilitySidebar() {
       icon: <Truck className="h-5 w-5" />,
       items: [
         { href: "/vehicles", label: "Liste des véhicules", icon: <List className="h-4 w-4" /> },
-        { href: "/vehicles/Add_Update", label: "Ajouter un véhicule", icon: <Plus className="h-4 w-4" /> },
+        { href: "/vehicles/Add_Update/{id}", label: "Ajouter un véhicule", icon: <Plus className="h-4 w-4" /> },
         { href: "/cession", label: "Cessions de véhicules", icon: <Car className="h-4 w-4" /> },
       ],
     },
@@ -36,8 +36,7 @@ export default function UtilitySidebar() {
       icon: <Settings className="h-5 w-5" />,
       items: [
         { href: "/maintenance", label: "Liste des maintenances", icon: <ClipboardList className="h-4 w-4" /> },
-        { href: "/reparations", label: "Nouvelle réparation", icon: <Wrench className="h-4 w-4" /> },
-        { href: "/outils", label: "Nouvel entretien", icon: <Settings className="h-4 w-4" /> },
+        { href: "/maintenance/Add_Update/{id}", label: "Nouvelle réparation/entretient", icon: <Wrench className="h-4 w-4" /> },
       ],
     },
   ];

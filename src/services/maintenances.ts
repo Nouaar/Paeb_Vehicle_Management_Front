@@ -19,3 +19,23 @@ export const addMaintenance = async (data: MaintenanceData) => {
     throw new Error(err.response?.data?.message || "Failed to add maintenance");
   }
 };
+
+export const getMaintenances = async () => {
+  try {
+
+    const response = await api.get("/maintenances");
+    return response.data;
+
+  }catch(error : any) {
+    throw new Error(error.response?.data?.message || "Failed to fetch maintenances");
+  }
+}
+
+export const deleteMaintenance = async (id: string) => {
+  try {
+    const response = await api.delete(`/maintenances/${id}`);
+    return response.data;
+  } catch (err: any) {
+    throw new Error(err.response?.data?.message || "Failed to delete maintenance");
+  }
+}
