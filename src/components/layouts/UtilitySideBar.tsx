@@ -29,7 +29,6 @@ export default function UtilitySidebar() {
       items: [
         { href: "/vehicles", label: "Liste des véhicules", icon: <List className="h-4 w-4" /> },
         { href: "/vehicles/add", label: "Ajouter un véhicule", icon: <Plus className="h-4 w-4" /> },
-        { href: "/cession", label: "Cessions de véhicules", icon: <Car className="h-4 w-4" /> },
       ],
     },
     {
