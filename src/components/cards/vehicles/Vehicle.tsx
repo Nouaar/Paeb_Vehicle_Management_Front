@@ -118,7 +118,7 @@ const handleSell = async (vehiculeId: string) => {
 
   if (formValues) {
     try {
-      const res = await axios.put(`http://localhost:3000/api/vehicles/vendre/${vehiculeId}`, {
+      const res = await axios.put(`http://localhost:3001/api/vehicles/vendre/${vehiculeId}`, {
         prixVente: Number(formValues.prixVente),
         dateVente: formValues.dateVente,
       });
