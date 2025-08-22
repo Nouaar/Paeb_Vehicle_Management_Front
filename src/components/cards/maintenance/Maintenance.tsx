@@ -99,7 +99,7 @@ const MaintenanceCard: React.FC<MaintenanceCardProps> = ({
         </div>
         <div className="flex space-x-2">
           <Link
-            href={`/maintenance/edit/${_id}`}
+            href={`/maintenance/update/${_id}`}
             className="px-3 py-2 bg-white text-blue-600 rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors text-sm font-medium"
           >
             Modifier

@@ -178,13 +178,9 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 
       {/* footer */}
       <div className="px-5 py-4 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
-        <span className="text-xs text-gray-500">
-          Ajouté le {new Date(dateAjout).toLocaleDateString("fr-FR")}
-        </span>
-
         <div className="flex space-x-2">
           <Link
-            href={`/vehicles/Add_Update/${_id}`}
+            href={`/vehicles/update/${_id}`}
             className="px-3 py-2 bg-white text-blue-600 rounded-lg border border-blue-200 hover:bg-blue-50 text-sm font-medium"
           >
             Modifier

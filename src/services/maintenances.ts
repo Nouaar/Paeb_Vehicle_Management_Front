@@ -39,3 +39,23 @@ export const deleteMaintenance = async (id: string) => {
     throw new Error(err.response?.data?.message || "Failed to delete maintenance");
   }
 }
+
+
+export const updateMaintenance = async (id: string, data: MaintenanceData) => {
+  try {
+    const response = await api.put(`/maintenances/${id}`, data);
+    return response.data;
+  } catch (err: any) {
+    throw new Error(err.response?.data?.message || "Failed to update maintenance");
+  }
+}
+
+
+export const getMaintenanceById = async (id: string) => {
+  try {
+    const response = await api.get(`/maintenances/${id}`);
+    return response.data;
+  } catch (err: any) {
+    throw new Error(err.response?.data?.message || "Failed to fetch maintenance");
+  }
+};
