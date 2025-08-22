@@ -46,7 +46,7 @@ export default function UtilitySidebar() {
   const mainNavItems = [
     { href: "/dashboard", label: "Tableau de bord", icon: <Home className="h-5 w-5" /> },
     { href: "/analytics", label: "Analytics", icon: <BarChart3 className="h-5 w-5" /> },
-    { href: "/team", label: "Équipe", icon: <Users className="h-5 w-5" /> },
+    { href: "/users", label: "Équipe", icon: <Users className="h-5 w-5" /> },
   ];
 
   return (

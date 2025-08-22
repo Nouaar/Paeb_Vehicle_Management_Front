@@ -10,5 +10,4 @@ export const loginAccount = async (email : string , password : string) =>{
         throw new Error(err.response?.data?.message || "Login failed");
     }
     
-
 }
