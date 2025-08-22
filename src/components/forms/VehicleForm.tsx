@@ -1,16 +1,36 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
 
-export default function VehiculeForm() {
-  const { id } = useParams(); // id du véhicule pour la mise à jour
-  const router = useRouter();
+export interface VehicleData {
+  _id?: string;
+  dateAjout: string;
+  typeVehicule: "voiture" | "camion" | "moto" | "bus";
+  marque: string;
+  modele: string;
+  annee: string;
+  couleur: string;
+  plaqueImmatriculation: string;
+  kilometrage: string;
+  statut: "disponible" | "en-utilisation" | "en-maintenance";
+  conducteurs: string[];
+}
 
-  const [loading, setLoading] = useState(true);
-  const [conducteursList, setConducteursList] = useState<any[]>([]);
-  const [formData, setFormData] = useState({
-    dateAjout: "",
+interface Driver {
+  _id: string;
+  firstName: string;
+  lastName: string;
+}
+
+interface VehicleFormProps {
+  initialData?: VehicleData;
+  onSubmit: (data: VehicleData) => Promise<void>;
+  submitLabel?: string;
+}
+
+export default function VehicleForm({ initialData, onSubmit, submitLabel = "Ajouter le véhicule" }: VehicleFormProps) {
+  const [formData, setFormData] = useState<VehicleData>(initialData || {
+    dateAjout: new Date().toISOString().split('T')[0], // Default to today
     typeVehicule: "voiture",
     marque: "",
     modele: "",
@@ -19,98 +39,78 @@ export default function VehiculeForm() {
     plaqueImmatriculation: "",
     kilometrage: "",
     statut: "disponible",
-    conducteurs: [] as string[],
+    conducteurs: [],
   });
 
-  // Fetch conducteurs
+  const [drivers, setDrivers] = useState<Driver[]>([]);
+  const [errors, setErrors] = useState<Partial<Record<keyof VehicleData, string>>>({});
+  const [loading, setLoading] = useState(false);
+
+  // Fetch drivers
   useEffect(() => {
-    fetch("http://localhost:3001/api/users")
-      .then((res) => res.json())
-      .then((data) => setConducteursList(data))
-      .catch((err) => console.error("Erreur fetch conducteurs :", err));
+    const fetchDrivers = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/api/users");
+        if (!response.ok) throw new Error("Erreur lors du chargement des conducteurs");
+        const data = await response.json();
+        setDrivers(data);
+      } catch (err) {
+        console.error("Erreur fetch conducteurs :", err);
+        alert("Impossible de charger la liste des conducteurs");
+      }
+    };
+    fetchDrivers();
   }, []);
 
-  // Fetch véhicule si id existe (édition)
-  useEffect(() => {
-    if (!id) {
-      setLoading(false);
-      return;
-    }
-    fetch(`http://localhost:3001/api/vehicles/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setFormData({
-          dateAjout: data.dateAjout || "",
-          typeVehicule: data.typeVehicule || "voiture",
-          marque: data.marque || "",
-          modele: data.modele || "",
-          annee: data.annee || "",
-          couleur: data.couleur || "",
-          plaqueImmatriculation: data.plaqueImmatriculation || "",
-          kilometrage: data.kilometrage || "",
-          statut: data.statut || "disponible",
-          conducteurs: data.conducteurs?.map((c: any) => c._id) || [],
-        });
-      })
-      .catch((err) => console.error("Erreur fetch véhicule :", err))
-      .finally(() => setLoading(false));
-  }, [id]);
-
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name as keyof VehicleData]) {
+      setErrors(prev => ({ ...prev, [name]: "" }));
+    }
+    setFormData({ ...formData, [name]: value });
   };
 
-  const handleConducteursChange = (e: any) => {
-    const selectedOptions = Array.from(
-      e.target.selectedOptions,
-      (option: any) => option.value
-    );
-    setFormData((prev) => ({ ...prev, conducteurs: selectedOptions }));
+  const handleDriversChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+    setFormData(prev => ({ ...prev, conducteurs: selectedOptions }));
   };
 
-  const handleSubmit = async (e: any) => {
+  const validateForm = () => {
+    const newErrors: Partial<Record<keyof VehicleData, string>> = {};
+    if (!formData.marque) newErrors.marque = "La marque est requise";
+    if (!formData.modele) newErrors.modele = "Le modèle est requis";
+    if (!formData.annee) newErrors.annee = "L'année est requise";
+    if (!formData.couleur) newErrors.couleur = "La couleur est requise";
+    if (!formData.plaqueImmatriculation) newErrors.plaqueImmatriculation = "La plaque d'immatriculation est requise";
+    if (!formData.kilometrage) newErrors.kilometrage = "Le kilométrage est requis";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    if (!validateForm()) return;
+    
+    setLoading(true);
     try {
-      const url = id
-        ? `http://localhost:3001/api/vehicles/${id}`
-        : "http://localhost:3001/api/vehicles";
-      const method = id ? "PUT" : "POST";
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      if (!res.ok) throw new Error("Erreur lors de l'envoi");
-
-      const result = await res.json();
-      console.log("✅ Succès :", result);
-
-      // Redirection vers liste véhicules
-      router.push("/vehicles");
-    } catch (err) {
-      console.error("❌ Erreur :", err);
+      await onSubmit(formData);
+    } finally {
+      setLoading(false);
     }
   };
-
-  if (loading) return (
-    <div className="flex justify-center items-center h-64">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-    </div>
-  );
 
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white">
           <h1 className="text-2xl font-bold">
-            {id ? "Modifier le véhicule" : "Ajouter un nouveau véhicule"}
+            {initialData?._id ? "Modifier le véhicule" : "Ajouter un nouveau véhicule"}
           </h1>
           <p className="opacity-90 mt-1">
-            {id ? "Mettez à jour les informations du véhicule" : "Renseignez les informations du nouveau véhicule"}
+            {initialData?._id 
+              ? "Mettez à jour les informations du véhicule" 
+              : "Renseignez les informations du nouveau véhicule"
+            }
           </p>
         </div>
         
@@ -123,9 +123,12 @@ export default function VehiculeForm() {
                 value={formData.marque}
                 onChange={handleChange}
                 placeholder="Ex: Toyota, Renault, Ford..."
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                  errors.marque ? "border-red-500" : "border-gray-300"
+                }`}
                 required
               />
+              {errors.marque && <p className="text-red-500 text-xs mt-1">{errors.marque}</p>}
             </div>
             
             <div className="space-y-2">
@@ -135,9 +138,12 @@ export default function VehiculeForm() {
                 value={formData.modele}
                 onChange={handleChange}
                 placeholder="Ex: Corolla, Clio, Focus..."
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                  errors.modele ? "border-red-500" : "border-gray-300"
+                }`}
                 required
               />
+              {errors.modele && <p className="text-red-500 text-xs mt-1">{errors.modele}</p>}
             </div>
             
             <div className="space-y-2">
@@ -150,9 +156,12 @@ export default function VehiculeForm() {
                 min="1900"
                 max={new Date().getFullYear() + 1}
                 placeholder="Ex: 2022"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                  errors.annee ? "border-red-500" : "border-gray-300"
+                }`}
                 required
               />
+              {errors.annee && <p className="text-red-500 text-xs mt-1">{errors.annee}</p>}
             </div>
             
             <div className="space-y-2">
@@ -162,9 +171,12 @@ export default function VehiculeForm() {
                 value={formData.couleur}
                 onChange={handleChange}
                 placeholder="Ex: Rouge, Bleu, Noir..."
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                  errors.couleur ? "border-red-500" : "border-gray-300"
+                }`}
                 required
               />
+              {errors.couleur && <p className="text-red-500 text-xs mt-1">{errors.couleur}</p>}
             </div>
             
             <div className="space-y-2">
@@ -174,9 +186,12 @@ export default function VehiculeForm() {
                 value={formData.plaqueImmatriculation}
                 onChange={handleChange}
                 placeholder="Ex: AB-123-CD"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition uppercase"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition uppercase ${
+                  errors.plaqueImmatriculation ? "border-red-500" : "border-gray-300"
+                }`}
                 required
               />
+              {errors.plaqueImmatriculation && <p className="text-red-500 text-xs mt-1">{errors.plaqueImmatriculation}</p>}
             </div>
             
             <div className="space-y-2">
@@ -188,9 +203,12 @@ export default function VehiculeForm() {
                 onChange={handleChange}
                 min="0"
                 placeholder="Ex: 15000"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                  errors.kilometrage ? "border-red-500" : "border-gray-300"
+                }`}
                 required
               />
+              {errors.kilometrage && <p className="text-red-500 text-xs mt-1">{errors.kilometrage}</p>}
             </div>
             
             <div className="space-y-2">
@@ -254,12 +272,12 @@ export default function VehiculeForm() {
             <select
               multiple
               value={formData.conducteurs}
-              onChange={handleConducteursChange}
+              onChange={handleDriversChange}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition min-h-[120px]"
             >
-              {conducteursList.map((c) => (
-                <option key={c._id} value={c._id}>
-                  {c.firstName} {c.lastName}
+              {drivers.map((driver) => (
+                <option key={driver._id} value={driver._id}>
+                  {driver.firstName} {driver.lastName}
                 </option>
               ))}
             </select>
@@ -271,19 +289,32 @@ export default function VehiculeForm() {
           <div className="flex justify-end space-x-4 pt-4 border-t border-gray-200">
             <button
               type="button"
-              onClick={() => router.push("/vehicles")}
+              onClick={() => window.history.back()}
               className="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
             >
               Annuler
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition flex items-center"
+              disabled={loading}
+              className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition flex items-center disabled:opacity-50"
             >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-              </svg>
-              {id ? "Mettre à jour" : "Ajouter le véhicule"}
+              {loading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Traitement...
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  {submitLabel}
+                </>
+              )}
             </button>
           </div>
         </form>

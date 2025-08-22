@@ -4,8 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Truck, Settings, ChevronDown, Plus, List, Car, Wrench, ClipboardList, Home, BarChart3, Users, HelpCircle } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function UtilitySidebar() {
+  const { user } = useAuth()
   const pathname = usePathname();
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     parc: true,
@@ -26,7 +28,7 @@ export default function UtilitySidebar() {
       icon: <Truck className="h-5 w-5" />,
       items: [
         { href: "/vehicles", label: "Liste des véhicules", icon: <List className="h-4 w-4" /> },
-        { href: "/vehicles/Add_Update/{id}", label: "Ajouter un véhicule", icon: <Plus className="h-4 w-4" /> },
+        { href: "/vehicles/add", label: "Ajouter un véhicule", icon: <Plus className="h-4 w-4" /> },
         { href: "/cession", label: "Cessions de véhicules", icon: <Car className="h-4 w-4" /> },
       ],
     },
@@ -36,7 +38,7 @@ export default function UtilitySidebar() {
       icon: <Settings className="h-5 w-5" />,
       items: [
         { href: "/maintenance", label: "Liste des maintenances", icon: <ClipboardList className="h-4 w-4" /> },
-        { href: "/maintenance/Add_Update/{id}", label: "Nouvelle réparation/entretient", icon: <Wrench className="h-4 w-4" /> },
+        { href: "/maintenance/add", label: "Nouvelle réparation/entretient", icon: <Wrench className="h-4 w-4" /> },
       ],
     },
   ];
@@ -146,7 +148,7 @@ export default function UtilitySidebar() {
             JD
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">John Doe</p>
+            <p className="text-sm font-medium text-gray-900 truncate">{user?.token}</p>
             <p className="text-xs text-gray-500 truncate">Administrateur</p>
           </div>
         </div>
