@@ -3,14 +3,34 @@ import Link from "next/link";
 import { useState } from "react";
 import Swal from "sweetalert2";
 import { Vehicle } from "@/types/vehicle";
+import axios from "axios";
 
 export interface VehicleCardProps extends Vehicle {
   deleteVehicle?: (id: string) => void;
+  sellVehicle?: (id: string) => void;
 }
+
+// ✅ format date helper
+const formatDate = (dateString?: string | Date) => {
+  if (!dateString) return "Non renseignée";
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return "Date invalide";
+  return date.toLocaleDateString("fr-FR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+
+// ✅ format prix helper
+const formatPrice = (price?: number) => {
+  if (!price) return "Non renseigné";
+  return `${price.toLocaleString("fr-FR")} €`;
+};
 
 const VehicleCard: React.FC<VehicleCardProps> = ({
   _id,
-  dateAjout,
+  dateMiseEnCirculation,
   typeVehicule,
   marque,
   modele,
@@ -19,8 +39,10 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
   plaqueImmatriculation,
   kilometrage,
   statut,
+  prix,
   conducteurs = [],
   deleteVehicle = () => {},
+  sellVehicle = () => {},
 }) => {
   const [showDrivers, setShowDrivers] = useState(false);
 
@@ -47,6 +69,8 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
         return "bg-orange-100 text-orange-800";
       case "en-maintenance":
         return "bg-red-100 text-red-800";
+      case "vendu":
+        return "bg-gray-300 text-gray-700";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -55,6 +79,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
   const formatMileage = (km: number) =>
     km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 
+  // ✅ suppression
   const handleDelete = async () => {
     const result = await Swal.fire({
       title: "Êtes-vous sûr ?",
@@ -74,6 +99,38 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
     }
   };
 
+
+
+const handleSell = async (vehiculeId: string) => {
+  const { value: formValues } = await Swal.fire({
+    title: 'Vente du véhicule',
+    html:
+      '<input id="prixVente" type="number" class="swal2-input" placeholder="Prix de vente">' +
+      '<input id="dateVente" type="date" class="swal2-input">',
+    focusConfirm: false,
+    preConfirm: () => {
+      const prixVente = (document.getElementById('prixVente') as HTMLInputElement).value;
+      const dateVente = (document.getElementById('dateVente') as HTMLInputElement).value;
+      if (!prixVente || !dateVente) Swal.showValidationMessage('Remplissez tous les champs');
+      return { prixVente, dateVente };
+    },
+  });
+
+  if (formValues) {
+    try {
+      const res = await axios.put(`http://localhost:3000/api/vehicles/vendre/${vehiculeId}`, {
+        prixVente: Number(formValues.prixVente),
+        dateVente: formValues.dateVente,
+      });
+      Swal.fire('Succès', 'Véhicule vendu !', 'success');
+      console.log(res.data);
+    } catch (err) {
+      Swal.fire('Erreur', 'Impossible de vendre le véhicule', 'error');
+    }
+  }
+};
+
+
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg border border-gray-100">
       {/* header */}
@@ -86,6 +143,9 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
             </h3>
             <p className="text-sm text-gray-600">
               {annee} • {couleur}
+            </p>
+            <p className="text-xs text-gray-500">
+              Ajouté le : {formatDate(dateMiseEnCirculation ?? undefined)}
             </p>
           </div>
         </div>
@@ -106,7 +166,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
               Plaque
             </span>
             <div className="font-mono text-sm font-semibold bg-gray-100 px-2 py-1 rounded">
-              {plaqueImmatriculation}
+              {plaqueImmatriculation ?? "Non renseignée"}
             </div>
           </div>
           <div>
@@ -114,9 +174,17 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
               Kilométrage
             </span>
             <div className="text-sm font-semibold">
-              {formatMileage(kilometrage)} km
+              {kilometrage !== undefined && kilometrage !== null ? `${formatMileage(kilometrage)} km` : "Non renseigné"}
             </div>
           </div>
+        </div>
+
+        {/* prix */}
+        <div className="mb-4">
+          <span className="text-xs text-gray-500 uppercase font-medium">
+            Prix
+          </span>
+          <div className="text-sm font-semibold">{formatPrice(prix)}</div>
         </div>
 
         {/* conducteurs */}
@@ -151,16 +219,16 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
                     <li key={c._id} className="flex items-center text-sm">
                       <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-2">
                         <span className="text-blue-600 font-semibold">
-                          {c.firstName.charAt(0)}
-                          {c.lastName.charAt(0)}
+                          {(c.firstName?.charAt(0) ?? "")}
+                          {(c.lastName?.charAt(0) ?? "")}
                         </span>
                       </div>
                       <div>
                         <p className="font-medium">
-                          {c.firstName} {c.lastName}
+                          {(c.firstName ?? "")} {(c.lastName ?? "")}
                         </p>
                         <p className="text-xs text-gray-500">
-                          ID: {c._id.substring(0, 8)}...
+                          ID: {c._id ? c._id.substring(0, 8) : "N/A"}...
                         </p>
                       </div>
                     </li>
@@ -191,6 +259,16 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
           >
             Supprimer
           </button>
+          {statut !== "vendu" && (
+  <button
+    onClick={() => handleSell(_id!)}
+    className="px-3 py-2 bg-white text-green-600 rounded-lg border border-green-200 hover:bg-green-50 text-sm font-medium"
+  >
+    Vendre
+  </button>
+)}
+
+          
         </div>
       </div>
     </div>

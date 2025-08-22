@@ -8,11 +8,12 @@ export interface VehicleData {
   typeVehicule: "voiture" | "camion" | "moto" | "bus";
   marque: string;
   modele: string;
-  annee: string;
+  dateMiseEnCirculation: string; 
   couleur: string;
   plaqueImmatriculation: string;
   kilometrage: string;
-  statut: "disponible" | "en-utilisation" | "en-maintenance";
+  prix: string; // ✅ nouveau champ
+  statut: "disponible" | "en-utilisation" | "en-maintenance" | "vendu";
   conducteurs: string[];
 }
 
@@ -29,24 +30,27 @@ interface VehicleFormProps {
 }
 
 export default function VehicleForm({ initialData, onSubmit, submitLabel = "Ajouter le véhicule" }: VehicleFormProps) {
-  const [formData, setFormData] = useState<VehicleData>(initialData || {
-    dateAjout: new Date().toISOString().split('T')[0], // Default to today
-    typeVehicule: "voiture",
-    marque: "",
-    modele: "",
-    annee: "",
-    couleur: "",
-    plaqueImmatriculation: "",
-    kilometrage: "",
-    statut: "disponible",
-    conducteurs: [],
-  });
+  const [formData, setFormData] = useState<VehicleData>(
+    initialData || {
+      dateAjout: new Date().toISOString().split("T")[0],
+      typeVehicule: "voiture",
+      marque: "",
+      modele: "",
+      dateMiseEnCirculation: "",
+      couleur: "",
+      plaqueImmatriculation: "",
+      kilometrage: "",
+      prix: "",
+      statut: "disponible",
+      conducteurs: [],
+    }
+  );
 
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [errors, setErrors] = useState<Partial<Record<keyof VehicleData, string>>>({});
   const [loading, setLoading] = useState(false);
 
-  // Fetch drivers
+  // 🔄 Récupérer les conducteurs
   useEffect(() => {
     const fetchDrivers = async () => {
       try {
@@ -65,32 +69,37 @@ export default function VehicleForm({ initialData, onSubmit, submitLabel = "Ajou
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     if (errors[name as keyof VehicleData]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
     setFormData({ ...formData, [name]: value });
   };
 
   const handleDriversChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
-    setFormData(prev => ({ ...prev, conducteurs: selectedOptions }));
+    const selectedOptions = Array.from(e.target.selectedOptions, (option) => option.value);
+    setFormData((prev) => ({ ...prev, conducteurs: selectedOptions }));
   };
 
   const validateForm = () => {
     const newErrors: Partial<Record<keyof VehicleData, string>> = {};
     if (!formData.marque) newErrors.marque = "La marque est requise";
     if (!formData.modele) newErrors.modele = "Le modèle est requis";
-    if (!formData.annee) newErrors.annee = "L'année est requise";
+    if (!formData.dateMiseEnCirculation) newErrors.dateMiseEnCirculation = "La date de mise en circulation est requise";
     if (!formData.couleur) newErrors.couleur = "La couleur est requise";
     if (!formData.plaqueImmatriculation) newErrors.plaqueImmatriculation = "La plaque d'immatriculation est requise";
     if (!formData.kilometrage) newErrors.kilometrage = "Le kilométrage est requis";
+    if (!formData.prix) newErrors.prix = "Le prix est requis";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+
+
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
-    
+
     setLoading(true);
     try {
       await onSubmit(formData);
@@ -107,15 +116,15 @@ export default function VehicleForm({ initialData, onSubmit, submitLabel = "Ajou
             {initialData?._id ? "Modifier le véhicule" : "Ajouter un nouveau véhicule"}
           </h1>
           <p className="opacity-90 mt-1">
-            {initialData?._id 
-              ? "Mettez à jour les informations du véhicule" 
-              : "Renseignez les informations du nouveau véhicule"
-            }
+            {initialData?._id
+              ? "Mettez à jour les informations du véhicule"
+              : "Renseignez les informations du nouveau véhicule"}
           </p>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Marque */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">Marque *</label>
               <input
@@ -130,7 +139,8 @@ export default function VehicleForm({ initialData, onSubmit, submitLabel = "Ajou
               />
               {errors.marque && <p className="text-red-500 text-xs mt-1">{errors.marque}</p>}
             </div>
-            
+
+            {/* Modèle */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">Modèle *</label>
               <input
@@ -145,25 +155,44 @@ export default function VehicleForm({ initialData, onSubmit, submitLabel = "Ajou
               />
               {errors.modele && <p className="text-red-500 text-xs mt-1">{errors.modele}</p>}
             </div>
-            
+
+            {/* Date mise en circulation */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">Année *</label>
+              <label className="block text-sm font-medium text-gray-700">Date de mise en circulation *</label>
               <input
-                type="number"
-                name="annee"
-                value={formData.annee}
+                type="date"
+                name="dateMiseEnCirculation"
+                value={formData.dateMiseEnCirculation}
                 onChange={handleChange}
-                min="1900"
-                max={new Date().getFullYear() + 1}
-                placeholder="Ex: 2022"
                 className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
-                  errors.annee ? "border-red-500" : "border-gray-300"
+                  errors.dateMiseEnCirculation ? "border-red-500" : "border-gray-300"
                 }`}
                 required
               />
-              {errors.annee && <p className="text-red-500 text-xs mt-1">{errors.annee}</p>}
+              {errors.dateMiseEnCirculation && (
+                <p className="text-red-500 text-xs mt-1">{errors.dateMiseEnCirculation}</p>
+              )}
             </div>
-            
+
+            {/* Prix */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Prix *</label>
+              <input
+                type="number"
+                name="prix"
+                value={formData.prix}
+                onChange={handleChange}
+                min="0"
+                placeholder="Ex: 15000"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                  errors.prix ? "border-red-500" : "border-gray-300"
+                }`}
+                required
+              />
+              {errors.prix && <p className="text-red-500 text-xs mt-1">{errors.prix}</p>}
+            </div>
+
+            {/* Couleur */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">Couleur *</label>
               <input
@@ -178,7 +207,8 @@ export default function VehicleForm({ initialData, onSubmit, submitLabel = "Ajou
               />
               {errors.couleur && <p className="text-red-500 text-xs mt-1">{errors.couleur}</p>}
             </div>
-            
+
+            {/* Plaque */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">Plaque d'immatriculation *</label>
               <input
@@ -191,9 +221,12 @@ export default function VehicleForm({ initialData, onSubmit, submitLabel = "Ajou
                 }`}
                 required
               />
-              {errors.plaqueImmatriculation && <p className="text-red-500 text-xs mt-1">{errors.plaqueImmatriculation}</p>}
+              {errors.plaqueImmatriculation && (
+                <p className="text-red-500 text-xs mt-1">{errors.plaqueImmatriculation}</p>
+              )}
             </div>
-            
+
+            {/* Kilométrage */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">Kilométrage *</label>
               <input
@@ -210,7 +243,8 @@ export default function VehicleForm({ initialData, onSubmit, submitLabel = "Ajou
               />
               {errors.kilometrage && <p className="text-red-500 text-xs mt-1">{errors.kilometrage}</p>}
             </div>
-            
+
+            {/* Type de véhicule */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">Type de véhicule *</label>
               <select
@@ -225,47 +259,29 @@ export default function VehicleForm({ initialData, onSubmit, submitLabel = "Ajou
                 <option value="bus">Bus</option>
               </select>
             </div>
-            
+
+            {/* Statut */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">Statut *</label>
               <div className="grid grid-cols-1 gap-3 mt-1">
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    name="statut"
-                    value="disponible"
-                    checked={formData.statut === "disponible"}
-                    onChange={handleChange}
-                    className="text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="ml-2">Disponible</span>
-                </label>
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    name="statut"
-                    value="en-utilisation"
-                    checked={formData.statut === "en-utilisation"}
-                    onChange={handleChange}
-                    className="text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="ml-2">En utilisation</span>
-                </label>
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    name="statut"
-                    value="en-maintenance"
-                    checked={formData.statut === "en-maintenance"}
-                    onChange={handleChange}
-                    className="text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="ml-2">En maintenance</span>
-                </label>
+                {["disponible", "en-utilisation", "en-maintenance"].map((status) => (
+                  <label key={status} className="inline-flex items-center">
+                    <input
+                      type="radio"
+                      name="statut"
+                      value={status}
+                      checked={formData.statut === status}
+                      onChange={handleChange}
+                      className="text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="ml-2 capitalize">{status.replace("-", " ")}</span>
+                  </label>
+                ))}
               </div>
             </div>
           </div>
-          
+
+          {/* Conducteurs */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">Conducteurs assignés</label>
             <p className="text-sm text-gray-500 mb-2">Maintenez Ctrl/Cmd pour sélectionner plusieurs conducteurs</p>
@@ -281,11 +297,10 @@ export default function VehicleForm({ initialData, onSubmit, submitLabel = "Ajou
                 </option>
               ))}
             </select>
-            <p className="text-sm text-gray-500 mt-1">
-              {formData.conducteurs.length} conducteur(s) sélectionné(s)
-            </p>
+            <p className="text-sm text-gray-500 mt-1">{formData.conducteurs.length} conducteur(s) sélectionné(s)</p>
           </div>
-          
+
+          {/* Actions */}
           <div className="flex justify-end space-x-4 pt-4 border-t border-gray-200">
             <button
               type="button"
@@ -301,15 +316,30 @@ export default function VehicleForm({ initialData, onSubmit, submitLabel = "Ajou
             >
               {loading ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Traitement...
                 </>
               ) : (
                 <>
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <svg
+                    className="w-5 h-5 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                   </svg>
                   {submitLabel}
