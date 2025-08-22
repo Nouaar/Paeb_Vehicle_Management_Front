@@ -2,7 +2,7 @@ import { User } from "./user";
 
 export interface Vehicle {
   _id ?: string; 
-  dateAjout: string;
+  dateMiseEnCirculation: string;
   typeVehicule: "voiture" | "camion" | "moto" | "bus";
   marque: string;
   modele: string;
@@ -10,6 +10,9 @@ export interface Vehicle {
   couleur: string;
   plaqueImmatriculation: string;
   kilometrage: number;
-  statut: "disponible" | "en-utilisation" | "en-maintenance";
+  prix: number;
+  statut: "disponible" | "en-utilisation" | "en-maintenance" | "vendu";
   conducteurs: User[] | []; 
+  prixVente?: number | null;
+  dateVente?: Date | null;
 }
