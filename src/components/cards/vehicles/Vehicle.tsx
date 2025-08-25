@@ -41,9 +41,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
   statut,
   prix,
   conducteurs = [],
-  deleteVehicle = () => {},
-  sellVehicle = () => {},
-}) => {
+  deleteVehicle = () => {},}) => {
   const [showDrivers, setShowDrivers] = useState(false);
 
   const getVehicleIcon = (type: Vehicle["typeVehicule"]) => {
