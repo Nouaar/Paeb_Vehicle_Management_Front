@@ -1,3 +1,4 @@
+import { Maintenance } from "./maintenance";
 import { User } from "./user";
 
 export interface Vehicle {
@@ -13,6 +14,8 @@ export interface Vehicle {
   prix: number;
   statut: "disponible" | "en-utilisation" | "en-maintenance" | "vendu";
   conducteurs: User[] | []; 
+  maintenances ?: Maintenance[] | [];
+  totalCoutMaintenance ?: number;
   prixVente?: number | null;
   dateVente?: Date | null;
 }
