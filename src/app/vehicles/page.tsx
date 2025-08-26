@@ -5,6 +5,7 @@ import VehicleCard from "@/components/cards/vehicles/Vehicle";
 import { SpinnerLoading } from "@/components/ui/SpinnerLoading";
 import type { VehicleCardProps } from "@/components/cards/vehicles/Vehicle";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Vehicles = () => {
   const [loading, setLoading] = useState(true);
@@ -103,99 +104,149 @@ const Vehicles = () => {
     return vehicles.filter(vehicle => vehicle.typeVehicule === type).length;
   };
 
+  const hasActiveFilters = searchTerm || statusFilter !== "all" || typeFilter !== "all";
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
+        <motion.div 
+          className="mb-8"
+          initial="hidden"
+          animate="visible"
+          variants={containerVariants}
+        >
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-            <div>
+            <motion.div variants={itemVariants}>
               <h1 className="text-3xl font-bold text-gray-900">Gestion du Parc Automobile</h1>
               <p className="text-gray-600 mt-2">Gérez l'ensemble des véhicules de votre flotte</p>
-            </div>
-            <Link
-              href="/vehicles/add"
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-              </svg>
-              Ajouter un véhicule
-            </Link>
+            </motion.div>
+            <motion.div variants={itemVariants} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Link
+                href="/vehicles/add"
+                className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-all duration-300 flex items-center shadow-md hover:shadow-lg"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Ajouter un véhicule
+              </Link>
+            </motion.div>
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <motion.div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" variants={containerVariants}>
+            <motion.div 
+              variants={itemVariants}
+              className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+            >
               <div className="flex items-center">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <div className="p-3 bg-blue-100 rounded-xl">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2a4 4 0 014-4h4m0 0V7a4 4 0 00-8 0v4m8 0a4 4 0 11-8 0"></path>
                   </svg>
                 </div>
-                <div className="ml-3">
+                <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Total Véhicules</p>
                   <p className="text-xl font-bold text-gray-900">{vehicles.length}</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
             
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <motion.div 
+              variants={itemVariants}
+              className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+            >
               <div className="flex items-center">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <div className="p-3 bg-green-100 rounded-xl">
+                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                   </svg>
                 </div>
-                <div className="ml-3">
+                <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Disponibles</p>
                   <p className="text-xl font-bold text-gray-900">{getStatusCount("disponible")}</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
             
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <motion.div 
+              variants={itemVariants}
+              className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+            >
               <div className="flex items-center">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <div className="p-3 bg-amber-100 rounded-xl">
+                  <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                   </svg>
                 </div>
-                <div className="ml-3">
+                <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">En utilisation</p>
                   <p className="text-xl font-bold text-gray-900">{getStatusCount("en-utilisation")}</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
             
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <motion.div 
+              variants={itemVariants}
+              className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+            >
               <div className="flex items-center">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <div className="p-3 bg-red-100 rounded-xl">
+                  <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                   </svg>
                 </div>
-                <div className="ml-3">
+                <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">En maintenance</p>
                   <p className="text-xl font-bold text-gray-900">{getStatusCount("en-maintenance")}</p>
                 </div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Filters Section */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <motion.div 
+            variants={itemVariants}
+            className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"
+          >
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
               <h2 className="text-lg font-semibold text-gray-900">Filtres et recherche</h2>
-              <button
-                onClick={clearFilters}
-                className="text-sm text-gray-600 hover:text-gray-900 flex items-center"
-              >
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-                Réinitialiser les filtres
-              </button>
+              {hasActiveFilters && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={clearFilters}
+                  className="text-sm text-gray-600 hover:text-gray-900 flex items-center transition-colors"
+                >
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                  Réinitialiser les filtres
+                </motion.button>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -213,7 +264,7 @@ const Vehicles = () => {
                     placeholder="Marque, modèle, plaque..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className="pl-10 pr-4 py-3 w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                   />
                 </div>
               </div>
@@ -224,7 +275,7 @@ const Vehicles = () => {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 >
                   <option value="all">Tous les statuts</option>
                   <option value="disponible">Disponible ({getStatusCount("disponible")})</option>
@@ -240,7 +291,7 @@ const Vehicles = () => {
                 <select
                   value={typeFilter}
                   onChange={(e) => setTypeFilter(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 >
                   <option value="all">Tous les types</option>
                   <option value="voiture">Voiture ({getTypeCount("voiture")})</option>
@@ -256,7 +307,7 @@ const Vehicles = () => {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 >
                   <option value="newest">Plus récent</option>
                   <option value="oldest">Plus ancien</option>
@@ -267,21 +318,28 @@ const Vehicles = () => {
                 </select>
               </div>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Results Count */}
-        <div className="mb-6 flex justify-between items-center">
-          <p className="text-gray-600">
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="mb-6 flex justify-between items-center bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+        >
+          <p className="text-gray-600 font-medium">
             {filteredVehicles.length} véhicule{filteredVehicles.length !== 1 ? 's' : ''} trouvé{filteredVehicles.length !== 1 ? 's' : ''}
           </p>
-          <div className="flex items-center space-x-2 text-sm text-gray-500">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <span>Filtres actifs: {statusFilter !== 'all' ? 'Statut, ' : ''}{typeFilter !== 'all' ? 'Type, ' : ''}{searchTerm ? 'Recherche' : ''}</span>
-          </div>
-        </div>
+          {hasActiveFilters && (
+            <div className="flex items-center space-x-2 text-sm text-blue-600">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+              </svg>
+              <span>Filtres actifs</span>
+            </div>
+          )}
+        </motion.div>
 
         {/* Vehicles Grid */}
         {loading ? (
@@ -289,9 +347,14 @@ const Vehicles = () => {
             <SpinnerLoading />
           </div>
         ) : filteredVehicles.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center"
+          >
             <svg
-              className="h-16 w-16 text-gray-400 mx-auto mb-4"
+              className="h-16 w-16 text-gray-300 mx-auto mb-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -299,42 +362,61 @@ const Vehicles = () => {
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2a4 4 0 014-4h4m0 0V7a4 4 0 00-8 0v4m8 0a4 4 0 11-8 0"></path>
             </svg>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun véhicule trouvé</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucun véhicule trouvé</h3>
             <p className="text-gray-600 mb-6">
-              {searchTerm || statusFilter !== 'all' || typeFilter !== 'all' 
+              {hasActiveFilters 
                 ? "Aucun véhicule ne correspond à vos critères de recherche" 
                 : "Aucun véhicule n'est enregistré dans le système"
               }
             </p>
-            {(searchTerm || statusFilter !== 'all' || typeFilter !== 'all') ? (
-              <button
+            {hasActiveFilters ? (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={clearFilters}
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Effacer les filtres
-              </button>
+              </motion.button>
             ) : (
-              <Link
-                href="/vehicles/add"
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center"
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                </svg>
-                Ajouter le premier véhicule
-              </Link>
+                <Link
+                  href="/vehicles/add"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                  </svg>
+                  Ajouter un véhicule
+                </Link>
+              </motion.div>
             )}
-          </div>
+          </motion.div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredVehicles.map((vehicle) => (
-              <VehicleCard
-                key={vehicle._id}
-                {...vehicle}
-                deleteVehicle={handleDelete}
-              />
-            ))}
-          </div>
+          <motion.div 
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          >
+            <AnimatePresence>
+              {filteredVehicles.map((vehicle) => (
+                <motion.div
+                  key={vehicle._id}
+                  variants={itemVariants}
+                  layout
+                >
+                  <VehicleCard
+                    {...vehicle}
+                    deleteVehicle={handleDelete}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
         )}
       </div>
     </div>

@@ -25,6 +25,9 @@
   position: relative;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
 }
 .loader::after,
 .loader::before {
