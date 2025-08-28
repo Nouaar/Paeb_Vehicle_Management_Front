@@ -4,11 +4,11 @@ import { useState, useEffect } from "react";
 
 export interface VehicleData {
   _id?: string;
-  dateAjout: string;
   typeVehicule: "voiture" | "camion" | "moto" | "bus";
   marque: string;
   modele: string;
   dateMiseEnCirculation: string; 
+  alertDateVisiteTechnique: string;
   couleur: string;
   plaqueImmatriculation: string;
   kilometrage: string;
@@ -32,7 +32,7 @@ interface VehicleFormProps {
 export default function VehicleForm({ initialData, onSubmit, submitLabel = "Ajouter le véhicule" }: VehicleFormProps) {
   const [formData, setFormData] = useState<VehicleData>(
     initialData || {
-      dateAjout: new Date().toISOString().split("T")[0],
+      alertDateVisiteTechnique: "",
       typeVehicule: "voiture",
       marque: "",
       modele: "",
@@ -84,6 +84,7 @@ export default function VehicleForm({ initialData, onSubmit, submitLabel = "Ajou
     if (!formData.marque) newErrors.marque = "La marque est requise";
     if (!formData.modele) newErrors.modele = "Le modèle est requis";
     if (!formData.dateMiseEnCirculation) newErrors.dateMiseEnCirculation = "La date de mise en circulation est requise";
+    if (!formData.alertDateVisiteTechnique) newErrors.alertDateVisiteTechnique = "La date de la prochaine visite technique est requise";
     if (!formData.couleur) newErrors.couleur = "La couleur est requise";
     if (!formData.plaqueImmatriculation) newErrors.plaqueImmatriculation = "La plaque d'immatriculation est requise";
     if (!formData.kilometrage) newErrors.kilometrage = "Le kilométrage est requis";
@@ -172,6 +173,24 @@ export default function VehicleForm({ initialData, onSubmit, submitLabel = "Ajou
               {errors.dateMiseEnCirculation && (
                 <p className="text-red-500 text-xs mt-1">{errors.dateMiseEnCirculation}</p>
               )}
+            </div>
+
+            {/* Date prochaine visite technique */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Date de la prochaine visite technique *</label>
+              <input
+                type="date"
+                name="alertDateVisiteTechnique"
+                value={formData.alertDateVisiteTechnique}
+                onChange={handleChange}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                  errors.alertDateVisiteTechnique ? "border-red-500" : "border-gray-300"
+                }`}
+                required
+              />
+              {errors.alertDateVisiteTechnique && (
+                <p className="text-red-500 text-xs mt-1">{errors.alertDateVisiteTechnique}</p>
+              )} 
             </div>
 
             {/* Prix */}

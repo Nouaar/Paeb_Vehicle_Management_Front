@@ -50,6 +50,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
   deleteVehicle = () => {},
   sellVehicle = () => {},
 }) => {
+
   const [showDrivers, setShowDrivers] = useState(false);
   const [showMaintenances, setShowMaintenances] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
