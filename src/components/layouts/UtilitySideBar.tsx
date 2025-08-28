@@ -129,16 +129,6 @@ export default function UtilitySidebar() {
         </div>
       </div>
 
-      {/* Support Section */}
-      <div className="p-4 border-t border-gray-100">
-        <Link
-          href="/support"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 transition-all group"
-        >
-          <HelpCircle className="h-5 w-5 text-gray-400 group-hover:text-gray-600" />
-          <span className="font-medium">Support & Aide</span>
-        </Link>
-      </div>
 
       {/* User Profile */}
       <div className="p-4 border-t border-gray-100">
@@ -147,7 +137,7 @@ export default function UtilitySidebar() {
             JD
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">{user?.token}</p>
+            <p className="text-sm font-medium text-gray-900 truncate">{(user as any)?.firstName ?? "Utilisateur"}</p>
             <p className="text-xs text-gray-500 truncate">Administrateur</p>
           </div>
         </div>
