@@ -20,7 +20,7 @@ export const deleteVehicle = async (id : string ) => {
    }
 }
 
-export const getVehiceleById = async (id: string) => {
+export const getVehiceleById = async (id: any) => {
    try {
       const response = await api.get(`/vehicles/${id}`);
       return response.data;

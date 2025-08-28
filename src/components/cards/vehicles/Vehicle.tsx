@@ -366,10 +366,16 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
           </motion.div>
         </div>
       </div>
-
-      {/* Footer */}
       <div className="px-5 py-4 bg-gray-50 border-t border-gray-100">
         <div className="flex flex-wrap space-x-2 space-y-2 margin-auto">
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Link
+              href={`/vehicles/details/${_id}`}
+              className="inline-flex items-center px-3 py-2 bg-white text-blue-600 rounded-lg border border-blue-200 hover:bg-blue-50 text-sm font-medium transition-colors shadow-sm"
+            >
+              Voir Détails
+            </Link>
+          </motion.div>
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Link
               href={`/vehicles/update/${_id}`}
