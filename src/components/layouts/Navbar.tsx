@@ -56,7 +56,6 @@ export default function Navbar() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
             <NavLink href="/" icon={<Home size={20} />}>Accueil</NavLink>
-            <NavLink href="/about" icon={<Info size={20} />}>À propos</NavLink>
 
             {/* 🔔 Notifications */}
             <div className="relative">

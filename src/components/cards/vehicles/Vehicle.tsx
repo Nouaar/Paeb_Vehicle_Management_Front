@@ -7,6 +7,7 @@ import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 
 export interface VehicleCardProps extends Vehicle {
+  alertDateVisiteTechnique: string | number | Date;
   deleteVehicle?: (id: string) => void;
   sellVehicle?: (id: string) => void;
 }

@@ -6,6 +6,11 @@ import { getMaintenances, deleteMaintenance } from "@/services/maintenances";
 import { Maintenance } from "@/types/maintenance";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
+
+
 
 export default function MaintenanceList() {
   const [loading, setLoading] = useState(true);
@@ -123,34 +128,106 @@ export default function MaintenanceList() {
     }
   };
 
+
+
+
+
+
+
+ // 🔹 Exporter les maintenances en Excel
+  const exportToExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(
+      maintenances.map(m => ({
+        "Type": m.typeMaintenance,
+        "Véhicule": typeof m.vehicule === "object" && m.vehicule
+          ? `${m.vehicule.marque} ${m.vehicule.modele}`
+          : "Non défini",
+        "Plaque": typeof m.vehicule === "object" && m.vehicule
+          ? m.vehicule.plaqueImmatriculation
+          : "Non défini",
+        "Détail intervention": m.detailIntervention,
+        "Kilométrage": m.kilometrage ?? "",
+        "Garage": m.garage ?? "",
+        "Fournisseur pièces": m.fournisseurPieces ?? "",
+        "Coût total": m.coutTotal ?? "",
+        "Date maintenance": m.dateEntretien
+          ? new Date(m.dateEntretien).toLocaleDateString("fr-FR")
+          : "",
+      }))
+    );
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Maintenances");
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(data, "maintenances.xlsx");
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   return (
+
+
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <motion.div 
-          initial="hidden"
-          animate="visible"
-          variants={containerVariants}
-          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+  <div className="max-w-7xl mx-auto space-y-6">
+    {/* Header */}
+    <motion.div 
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+    >
+      {/* Title */}
+      <motion.div variants={itemVariants}>
+        <h1 className="text-3xl font-bold text-gray-900 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          Gestion des Maintenances
+        </h1>
+        <p className="text-gray-600 mt-1">Suivi complet de l'entretien des véhicules</p>
+      </motion.div>
+
+      {/* Action Buttons */}
+      <motion.div variants={itemVariants} className="flex gap-3">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={exportToExcel}
+          className="bg-green-600 text-white px-5 py-2 rounded-xl hover:bg-green-700 transition-all duration-300 flex items-center shadow-md hover:shadow-lg"
         >
-          <motion.div variants={itemVariants}>
-            <h1 className="text-3xl font-bold text-gray-900 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Gestion des Maintenances
-            </h1>
-            <p className="text-gray-600 mt-1">Suivi complet de l'entretien des véhicules</p>
-          </motion.div>
-          <motion.div variants={itemVariants} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-            <Link
-              href="/maintenance/add"
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 flex items-center shadow-lg hover:shadow-xl"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-              </svg>
-              Nouvelle Maintenance
-            </Link>
-          </motion.div>
-        </motion.div>
+          <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M3 3h14v2H3V3zm0 4h14v2H3V7zm0 4h8v2H3v-2zm0 4h8v2H3v-2z"></path>
+          </svg>
+          Exporter Excel
+        </motion.button>
+
+        <Link
+          href="/maintenance/add"
+          className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 flex items-center shadow-lg hover:shadow-xl"
+        >
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+          Nouvelle Maintenance
+        </Link>
+      </motion.div>
+    </motion.div>
+  
+
+
+
 
         {/* Statistics Cards */}
         <motion.div 
