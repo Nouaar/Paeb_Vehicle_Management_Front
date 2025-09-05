@@ -26,7 +26,7 @@ const formatDate = (dateString?: string | Date) => {
 
 const formatPrice = (price?: number) => {
   if (!price) return "Non renseigné";
-  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(price);
+  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'TND' }).format(price);
 };
 
 const formatMileage = (km: number) => {
@@ -117,7 +117,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
     const { value: formValues } = await Swal.fire({
       title: "Vente du véhicule",
       html:
-        '<input id="prixVente" type="number" class="swal2-input" placeholder="Prix de vente (€)">' +
+        '<input id="prixVente" type="number" class="swal2-input" placeholder="Prix de vente (DT)">' +
         '<input id="dateVente" type="date" class="swal2-input" placeholder="Date de vente">',
       focusConfirm: false,
       showCancelButton: true,
@@ -136,7 +136,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
     if (formValues) {
       try {
         const res = await axios.put(
-          `http://localhost:3001/api/vehicles/vendre/${vehiculeId}`,
+          `https://paeb-vehicle-management-backend.onrender.com/api/vehicles/vendre/${vehiculeId}`,
           {
             prixVente: Number(formValues.prixVente),
             dateVente: formValues.dateVente,

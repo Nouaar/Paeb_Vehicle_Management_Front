@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Truck, Settings, ChevronDown, Plus, List, Car, Wrench, ClipboardList, Home, BarChart3, Users, HelpCircle } from "lucide-react";
+import { Truck, Settings, ChevronDown, Plus, List, Car, Wrench, ClipboardList, Home, BarChart3, Users, HelpCircle, X } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 
-export default function UtilitySidebar() {
+export default function UtilitySidebar({ onClose }: { onClose?: () => void }) {
   const { user } = useAuth()
   const pathname = usePathname();
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
@@ -50,6 +50,17 @@ export default function UtilitySidebar() {
 
   return (
     <aside className="w-64 bg-white border-r border-gray-100 h-screen flex flex-col overflow-hidden shadow-sm">
+      {/* Close button for mobile */}
+      {onClose && (
+        <div className="md:hidden flex justify-end p-4 border-b border-gray-100">
+          <button
+            onClick={onClose}
+            className="p-1 rounded-md hover:bg-gray-100"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+      )}
 
       {/* Main Navigation */}
       <div className="py-4 px-3 border-b border-gray-100">
@@ -60,6 +71,7 @@ export default function UtilitySidebar() {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={onClose}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group",
                   isActive
@@ -105,6 +117,7 @@ export default function UtilitySidebar() {
                       <Link
                         key={item.href}
                         href={item.href}
+                        onClick={onClose}
                         className={cn(
                           "flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-all group",
                           isActive
@@ -129,12 +142,11 @@ export default function UtilitySidebar() {
         </div>
       </div>
 
-
       {/* User Profile */}
       <div className="p-4 border-t border-gray-100">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center text-white font-medium">
-            JD
+            {(user as any)?.firstName?.charAt(0) || 'U'}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-900 truncate">{(user as any)?.firstName ?? "Utilisateur"}</p>
