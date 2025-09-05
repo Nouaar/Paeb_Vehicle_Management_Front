@@ -74,10 +74,10 @@ const DashboardStatsComponent = () => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
-      currency: 'EUR',
+      currency: 'TND',
       minimumFractionDigits: 0,
     }).format(amount);
-  };
+  };  
 
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat('fr-FR').format(num);

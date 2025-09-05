@@ -9,9 +9,6 @@ import Link from "next/link";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
-
-
-
 export default function MaintenanceList() {
   const [loading, setLoading] = useState(true);
   const [maintenances, setMaintenances] = useState<Maintenance[]>([]);
@@ -22,6 +19,9 @@ export default function MaintenanceList() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [garageFilter, setGarageFilter] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
+
+  // Mobile filters state
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   useEffect(() => {
     const fetchMaintenances = async () => {
@@ -128,13 +128,7 @@ export default function MaintenanceList() {
     }
   };
 
-
-
-
-
-
-
- // 🔹 Exporter les maintenances en Excel
+  // Export to Excel function
   const exportToExcel = () => {
     const ws = XLSX.utils.json_to_sheet(
       maintenances.map(m => ({
@@ -163,109 +157,89 @@ export default function MaintenanceList() {
     saveAs(data, "maintenances.xlsx");
   };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   return (
-
-
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-  <div className="max-w-7xl mx-auto space-y-6">
-    {/* Header */}
-    <motion.div 
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-      className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
-    >
-      {/* Title */}
-      <motion.div variants={itemVariants}>
-        <h1 className="text-3xl font-bold text-gray-900 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-          Gestion des Maintenances
-        </h1>
-        <p className="text-gray-600 mt-1">Suivi complet de l'entretien des véhicules</p>
-      </motion.div>
-
-      {/* Action Buttons */}
-      <motion.div variants={itemVariants} className="flex gap-3">
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={exportToExcel}
-          className="bg-green-600 text-white px-5 py-2 rounded-xl hover:bg-green-700 transition-all duration-300 flex items-center shadow-md hover:shadow-lg"
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 sm:p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <motion.div 
+          initial="hidden"
+          animate="visible"
+          variants={containerVariants}
+          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
         >
-          <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M3 3h14v2H3V3zm0 4h14v2H3V7zm0 4h8v2H3v-2zm0 4h8v2H3v-2z"></path>
-          </svg>
-          Exporter Excel
-        </motion.button>
+          {/* Title */}
+          <motion.div variants={itemVariants}>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              Gestion des Maintenances
+            </h1>
+            <p className="text-gray-600 mt-1 text-sm sm:text-base">Suivi complet de l'entretien des véhicules</p>
+          </motion.div>
 
-        <Link
-          href="/maintenance/add"
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 flex items-center shadow-lg hover:shadow-xl"
-        >
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-          </svg>
-          Nouvelle Maintenance
-        </Link>
-      </motion.div>
-    </motion.div>
-  
+          {/* Action Buttons */}
+          <motion.div variants={itemVariants} className="flex gap-2 sm:gap-3 w-full sm:w-auto">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={exportToExcel}
+              className="bg-green-600 text-white px-3 py-2 sm:px-5 sm:py-2 rounded-xl hover:bg-green-700 transition-all duration-300 flex items-center shadow-md hover:shadow-lg text-sm sm:text-base flex-1 sm:flex-none justify-center"
+            >
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M3 3h14v2H3V3zm0 4h14v2H3V7zm0 4h8v2H3v-2zm0 4h8v2H3v-2z"></path>
+              </svg>
+              <span className="hidden sm:inline">Exporter Excel</span>
+              <span className="sm:hidden">Excel</span>
+            </motion.button>
 
-
-
+            <Link
+              href="/maintenance/add"
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-2 sm:px-6 sm:py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 flex items-center shadow-lg hover:shadow-xl text-sm sm:text-base flex-1 sm:flex-none justify-center"
+            >
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              <span className="hidden sm:inline">Nouvelle Maintenance</span>
+              <span className="sm:hidden">Nouvelle</span>
+            </Link>
+          </motion.div>
+        </motion.div>
 
         {/* Statistics Cards */}
         <motion.div 
-          className="grid grid-cols-2 md:grid-cols-4 gap-4"
+          className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
           initial="hidden"
           animate="visible"
           variants={containerVariants}
         >
           <motion.div 
             variants={itemVariants}
-            className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+            className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
           >
             <div className="flex items-center">
-              <div className="p-3 bg-blue-100 rounded-xl">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <div className="p-2 sm:p-3 bg-blue-100 rounded-xl">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2a4 4 0 014-4h4m0 0V7a4 4 0 00-8 0v4m8 0a4 4 0 11-8 0"></path>
                 </svg>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Maintenances</p>
-                <p className="text-xl font-bold text-gray-900">{maintenances.length}</p>
+              <div className="ml-3 sm:ml-4">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Maintenances</p>
+                <p className="text-lg sm:text-xl font-bold text-gray-900">{maintenances.length}</p>
               </div>
             </div>
           </motion.div>
 
           <motion.div 
             variants={itemVariants}
-            className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+            className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
           >
             <div className="flex items-center">
-              <div className="p-3 bg-green-100 rounded-xl">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <div className="p-2 sm:p-3 bg-green-100 rounded-xl">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
                 </svg>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Coût Total</p>
-                <p className="text-xl font-bold text-gray-900">
+              <div className="ml-3 sm:ml-4">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Coût Total</p>
+                <p className="text-lg sm:text-xl font-bold text-gray-900">
                   {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'TND' }).format(totalCost)}
                 </p>
               </div>
@@ -274,17 +248,17 @@ export default function MaintenanceList() {
 
           <motion.div 
             variants={itemVariants}
-            className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+            className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
           >
             <div className="flex items-center">
-              <div className="p-3 bg-amber-100 rounded-xl">
-                <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <div className="p-2 sm:p-3 bg-amber-100 rounded-xl">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                 </svg>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Coût Moyen</p>
-                <p className="text-xl font-bold text-gray-900">
+              <div className="ml-3 sm:ml-4">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Coût Moyen</p>
+                <p className="text-lg sm:text-xl font-bold text-gray-900">
                   {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'TND' }).format(averageCost)}
                 </p>
               </div>
@@ -293,31 +267,53 @@ export default function MaintenanceList() {
 
           <motion.div 
             variants={itemVariants}
-            className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+            className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
           >
             <div className="flex items-center">
-              <div className="p-3 bg-purple-100 rounded-xl">
-                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <div className="p-2 sm:p-3 bg-purple-100 rounded-xl">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-6 0H5m2 0h4M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                 </svg>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Garages</p>
-                <p className="text-xl font-bold text-gray-900">{uniqueGarages.length}</p>
+              <div className="ml-3 sm:ml-4">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Garages</p>
+                <p className="text-lg sm:text-xl font-bold text-gray-900">{uniqueGarages.length}</p>
               </div>
             </div>
           </motion.div>
         </motion.div>
+
+        {/* Mobile Filter Toggle */}
+        <div className="lg:hidden">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setShowMobileFilters(!showMobileFilters)}
+            className="w-full bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex items-center justify-between"
+          >
+            <span className="font-medium text-gray-700">Filtres & Recherche</span>
+            <svg 
+              className={`w-5 h-5 text-gray-500 transition-transform ${showMobileFilters ? 'rotate-180' : ''}`}
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24" 
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </motion.button>
+        </div>
 
         {/* Filters Section */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"
+          className={`bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 ${showMobileFilters ? 'block' : 'hidden lg:block'}`}
         >
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Filtres & Recherche</h2>
+            <h2 className="text-lg font-semibold text-gray-900 hidden lg:block">Filtres & Recherche</h2>
+            <h2 className="text-lg font-semibold text-gray-900 lg:hidden">Filtres appliqués</h2>
             {hasActiveFilters && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -411,7 +407,7 @@ export default function MaintenanceList() {
           transition={{ duration: 0.4 }}
           className="flex justify-between items-center bg-white rounded-xl p-4 shadow-sm border border-gray-100"
         >
-          <p className="text-gray-600 font-medium">
+          <p className="text-gray-600 font-medium text-sm sm:text-base">
             {filteredMaintenances.length} maintenance{filteredMaintenances.length !== 1 ? 's' : ''} trouvée{filteredMaintenances.length !== 1 ? 's' : ''}
           </p>
           {hasActiveFilters && (
@@ -419,7 +415,7 @@ export default function MaintenanceList() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
               </svg>
-              <span>Filtres actifs</span>
+              <span className="hidden sm:inline">Filtres actifs</span>
             </div>
           )}
         </motion.div>
@@ -433,10 +429,10 @@ export default function MaintenanceList() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center"
+            className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 sm:p-12 text-center"
           >
             <svg
-              className="h-20 w-20 text-gray-300 mx-auto mb-4"
+              className="h-16 w-16 sm:h-20 sm:w-20 text-gray-300 mx-auto mb-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -444,8 +440,8 @@ export default function MaintenanceList() {
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2a4 4 0 014-4h4m0 0V7a4 4 0 00-8 0v4m8 0a4 4 0 11-8 0"></path>
             </svg>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Aucune maintenance trouvée</h3>
-            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Aucune maintenance trouvée</h3>
+            <p className="text-gray-600 mb-6 max-w-md mx-auto text-sm sm:text-base">
               {hasActiveFilters 
                 ? "Aucune maintenance ne correspond à vos critères de recherche. Essayez d'ajuster vos filtres." 
                 : "Commencez par ajouter votre première maintenance."
@@ -456,7 +452,7 @@ export default function MaintenanceList() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={clearFilters}
-                className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors font-medium"
+                className="bg-blue-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-xl hover:bg-blue-700 transition-colors font-medium text-sm sm:text-base"
               >
                 Effacer les filtres
               </motion.button>
@@ -467,9 +463,9 @@ export default function MaintenanceList() {
               >
                 <Link
                   href="/maintenance/add"
-                  className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors font-medium inline-flex items-center"
+                  className="bg-blue-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-xl hover:bg-blue-700 transition-colors font-medium inline-flex items-center text-sm sm:text-base"
                 >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                   </svg>
                   Ajouter une maintenance
@@ -482,7 +478,7 @@ export default function MaintenanceList() {
             initial="hidden"
             animate="visible"
             variants={containerVariants}
-            className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+            className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
           >
             <AnimatePresence>
               {filteredMaintenances.map((maintenance) => (
