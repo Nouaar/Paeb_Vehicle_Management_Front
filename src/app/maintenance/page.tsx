@@ -239,7 +239,7 @@ export default function MaintenanceList() {
               </div>
               <div className="ml-3 sm:ml-4">
                 <p className="text-xs sm:text-sm font-medium text-gray-600">Coût Total</p>
-                <p className="text-lg sm:text-xl font-bold text-gray-900">
+                <p className="text-lg sm:text-sm font-bold text-gray-900">
                   {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'TND' }).format(totalCost)}
                 </p>
               </div>
@@ -258,7 +258,7 @@ export default function MaintenanceList() {
               </div>
               <div className="ml-3 sm:ml-4">
                 <p className="text-xs sm:text-sm font-medium text-gray-600">Coût Moyen</p>
-                <p className="text-lg sm:text-xl font-bold text-gray-900">
+                <p className="text-lg sm:text-sm font-bold text-gray-900">
                   {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'TND' }).format(averageCost)}
                 </p>
               </div>
