@@ -43,8 +43,7 @@ export default function UtilitySidebar({ onClose }: { onClose?: () => void }) {
   ];
 
   const mainNavItems = [
-    { href: "/dashboard", label: "Tableau de bord", icon: <Home className="h-5 w-5" /> },
-    { href: "/analytics", label: "Analytics", icon: <BarChart3 className="h-5 w-5" /> },
+
     { href: "/users", label: "Équipe", icon: <Users className="h-5 w-5" /> },
   ];
 
@@ -142,18 +141,7 @@ export default function UtilitySidebar({ onClose }: { onClose?: () => void }) {
         </div>
       </div>
 
-      {/* User Profile */}
-      <div className="p-4 border-t border-gray-100">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center text-white font-medium">
-            {(user as any)?.firstName?.charAt(0) || 'U'}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">{(user as any)?.firstName ?? "Utilisateur"}</p>
-            <p className="text-xs text-gray-500 truncate">Administrateur</p>
-          </div>
-        </div>
-      </div>
+     
     </aside>
   );
 }

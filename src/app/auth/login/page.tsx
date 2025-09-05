@@ -115,19 +115,6 @@ export default function Login() {
             />
           </div>
 
-          <div className="flex items-center justify-between text-sm text-gray-600">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                className="h-4 w-4 text-gray-800 rounded border-gray-400 focus:ring-gray-700"
-              />
-              Se souvenir de moi
-            </label>
-            <a href="#" className="hover:text-gray-900 transition-colors">
-              Mot de passe oublié ?
-            </a>
-          </div>
-
           <button
             type="submit"
             disabled={loading}
