@@ -8,6 +8,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { Search, Filter, X, Plus, Download, Car, CheckCircle, AlertCircle, Wrench } from "lucide-react";
 
 const Vehicles = () => {
   const [loading, setLoading] = useState(true);
@@ -17,6 +18,7 @@ const Vehicles = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("newest");
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     const fetchVehicles = async () => {
@@ -96,6 +98,7 @@ const Vehicles = () => {
     setStatusFilter("all");
     setTypeFilter("all");
     setSortBy("newest");
+    setShowFilters(false);
   };
 
   const getStatusCount = (status: string) => {
@@ -130,159 +133,151 @@ const Vehicles = () => {
     }
   };
 
-// Exporter en Excel
-const exportToExcel = () => {
-  const ws = XLSX.utils.json_to_sheet(
-    vehicles.map(v => ({
-      "Type": v.typeVehicule,
-      "Marque": v.marque,
-      "Modèle": v.modele,
-      "Date Mise en Circulation": v.dateMiseEnCirculation
-        ? new Date(v.dateMiseEnCirculation).toLocaleDateString()
-        : "",
-      "Couleur": v.couleur,
-      "Plaque d'immatriculation": v.plaqueImmatriculation,
-      "Kilométrage": v.kilometrage,
-      "Statut": v.statut,
-      "Prix": v.prix,
-      "Conducteurs": v.conducteurs && v.conducteurs.length > 0
-        ? v.conducteurs.map(c => `${c.firstName} ${c.lastName}`).join(", ")
-        : "Aucun",
-      "Prix de vente": v.prixVente ?? "Non vendue",
-      "Date de vente": v.dateVente 
-        ? new Date(v.dateVente).toLocaleDateString() 
-        : "Non vendue",
-      "Date alerte visite technique": v.alertDateVisiteTechnique 
-        ? new Date(v.alertDateVisiteTechnique).toLocaleDateString() 
-        : "Non définie",
-    }))
-  );
+  // Exporter en Excel
+  const exportToExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(
+      vehicles.map(v => ({
+        "Type": v.typeVehicule,
+        "Marque": v.marque,
+        "Modèle": v.modele,
+        "Date Mise en Circulation": v.dateMiseEnCirculation
+          ? new Date(v.dateMiseEnCirculation).toLocaleDateString()
+          : "",
+        "Couleur": v.couleur,
+        "Plaque d'immatriculation": v.plaqueImmatriculation,
+        "Kilométrage": v.kilometrage,
+        "Statut": v.statut,
+        "Prix": v.prix,
+        "Conducteurs": v.conducteurs && v.conducteurs.length > 0
+          ? v.conducteurs.map(c => `${c.firstName} ${c.lastName}`).join(", ")
+          : "Aucun",
+        "Prix de vente": v.prixVente ?? "Non vendue",
+        "Date de vente": v.dateVente 
+          ? new Date(v.dateVente).toLocaleDateString() 
+          : "Non vendue",
+        "Date alerte visite technique": v.alertDateVisiteTechnique 
+          ? new Date(v.alertDateVisiteTechnique).toLocaleDateString() 
+          : "Non définie",
+      }))
+    );
 
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Véhicules");
-  const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-  const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-  saveAs(data, "vehicules.xlsx");
-};
-
-
-
-
-
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Véhicules");
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(data, "vehicules.xlsx");
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-  <div className="max-w-7xl mx-auto">
-    {/* Header */}
-    <motion.div 
-      className="mb-8"
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-    >
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        {/* Title */}
-        <motion.div variants={itemVariants}>
-          <h1 className="text-3xl font-bold text-gray-900">Gestion du Parc Automobile</h1>
-          <p className="text-gray-600 mt-2">Gérez l'ensemble des véhicules de votre flotte</p>
-        </motion.div>
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <motion.div 
+          className="mb-6"
+          initial="hidden"
+          animate="visible"
+          variants={containerVariants}
+        >
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            {/* Title */}
+            <motion.div variants={itemVariants}>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Gestion du Parc Automobile</h1>
+              <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Gérez l'ensemble des véhicules de votre flotte</p>
+            </motion.div>
 
-        {/* Action Buttons */}
-        <motion.div variants={itemVariants} className="flex gap-3">
-          {/* Export Excel */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={exportToExcel}
-            className="bg-green-600 text-white px-5 py-2 rounded-xl hover:bg-green-700 transition-all duration-300 flex items-center shadow-md hover:shadow-lg"
-          >
-            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M3 3h14v2H3V3zm0 4h14v2H3V7zm0 4h8v2H3v-2zm0 4h8v2H3v-2z"></path>
-            </svg>
-            Exporter Excel
-          </motion.button>
+            {/* Action Buttons */}
+            <motion.div variants={itemVariants} className="flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto">
+              {/* Export Excel */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={exportToExcel}
+                className="flex-1 sm:flex-none bg-green-600 text-white px-3 sm:px-5 py-2 rounded-lg sm:rounded-xl hover:bg-green-700 transition-all duration-300 flex items-center justify-center shadow-md hover:shadow-lg text-sm sm:text-base"
+              >
+                <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Exporter Excel</span>
+                <span className="sm:hidden">Excel</span>
+              </motion.button>
 
-          {/* Add Vehicle */}
-          <Link
-            href="/vehicles/add"
-            className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-all duration-300 flex items-center shadow-md hover:shadow-lg"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-            </svg>
-            Ajouter un véhicule
-          </Link>
-        </motion.div>
-      </div>
+              {/* Add Vehicle */}
+              <Link
+                href="/vehicles/add"
+                className="flex-1 sm:flex-none bg-blue-600 text-white px-3 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl hover:bg-blue-700 transition-all duration-300 flex items-center justify-center shadow-md hover:shadow-lg text-sm sm:text-base"
+              >
+                <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Ajouter un véhicule</span>
+                <span className="sm:hidden">Ajouter</span>
+              </Link>
 
-          
+              {/* Mobile Filter Toggle */}
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="sm:hidden bg-gray-200 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-300 transition-all duration-300 flex items-center justify-center"
+              >
+                <Filter className="w-4 h-4 mr-1" />
+                Filtres
+              </button>
+            </motion.div>
+          </div>
 
           {/* Stats Cards */}
-          <motion.div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" variants={containerVariants}>
+          <motion.div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6" variants={containerVariants}>
             <motion.div 
               variants={itemVariants}
-              className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+              className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
             >
               <div className="flex items-center">
-                <div className="p-3 bg-blue-100 rounded-xl">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2a4 4 0 014-4h4m0 0V7a4 4 0 00-8 0v4m8 0a4 4 0 11-8 0"></path>
-                  </svg>
+                <div className="p-2 sm:p-3 bg-blue-100 rounded-lg sm:rounded-xl">
+                  <Car className="w-4 h-4 sm:w-6 sm:h-6 text-blue-600" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Véhicules</p>
-                  <p className="text-xl font-bold text-gray-900">{vehicles.length}</p>
+                <div className="ml-3">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600">Total Véhicules</p>
+                  <p className="text-lg sm:text-xl font-bold text-gray-900">{vehicles.length}</p>
                 </div>
               </div>
             </motion.div>
             
             <motion.div 
               variants={itemVariants}
-              className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+              className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
             >
               <div className="flex items-center">
-                <div className="p-3 bg-green-100 rounded-xl">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                  </svg>
+                <div className="p-2 sm:p-3 bg-green-100 rounded-lg sm:rounded-xl">
+                  <CheckCircle className="w-4 h-4 sm:w-6 sm:h-6 text-green-600" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Disponibles</p>
-                  <p className="text-xl font-bold text-gray-900">{getStatusCount("disponible")}</p>
+                <div className="ml-3">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600">Disponibles</p>
+                  <p className="text-lg sm:text-xl font-bold text-gray-900">{getStatusCount("disponible")}</p>
                 </div>
               </div>
             </motion.div>
             
             <motion.div 
               variants={itemVariants}
-              className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+              className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
             >
               <div className="flex items-center">
-                <div className="p-3 bg-amber-100 rounded-xl">
-                  <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                  </svg>
+                <div className="p-2 sm:p-3 bg-amber-100 rounded-lg sm:rounded-xl">
+                  <AlertCircle className="w-4 h-4 sm:w-6 sm:h-6 text-amber-600" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">En utilisation</p>
-                  <p className="text-xl font-bold text-gray-900">{getStatusCount("en-utilisation")}</p>
+                <div className="ml-3">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600">En utilisation</p>
+                  <p className="text-lg sm:text-xl font-bold text-gray-900">{getStatusCount("en-utilisation")}</p>
                 </div>
               </div>
             </motion.div>
             
             <motion.div 
               variants={itemVariants}
-              className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+              className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
             >
               <div className="flex items-center">
-                <div className="p-3 bg-red-100 rounded-xl">
-                  <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                  </svg>
+                <div className="p-2 sm:p-3 bg-red-100 rounded-lg sm:rounded-xl">
+                  <Wrench className="w-4 h-4 sm:w-6 sm:h-6 text-red-600" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">En maintenance</p>
-                  <p className="text-xl font-bold text-gray-900">{getStatusCount("en-maintenance")}</p>
+                <div className="ml-3">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600">En maintenance</p>
+                  <p className="text-lg sm:text-xl font-bold text-gray-900">{getStatusCount("en-maintenance")}</p>
                 </div>
               </div>
             </motion.div>
@@ -291,52 +286,56 @@ const exportToExcel = () => {
           {/* Filters Section */}
           <motion.div 
             variants={itemVariants}
-            className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"
+            className={`bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 ${showFilters ? 'block' : 'hidden sm:block'}`}
           >
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Filtres et recherche</h2>
-              {hasActiveFilters && (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={clearFilters}
-                  className="text-sm text-gray-600 hover:text-gray-900 flex items-center transition-colors"
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 sm:gap-4 mb-4">
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900">Filtres et recherche</h2>
+              <div className="flex items-center gap-2">
+                {hasActiveFilters && (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={clearFilters}
+                    className="text-xs sm:text-sm text-gray-600 hover:text-gray-900 flex items-center transition-colors"
+                  >
+                    <X className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                    Réinitialiser
+                  </motion.button>
+                )}
+                <button
+                  onClick={() => setShowFilters(false)}
+                  className="sm:hidden text-gray-600 hover:text-gray-900"
                 >
-                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                  Réinitialiser les filtres
-                </motion.button>
-              )}
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               {/* Search Input */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Rechercher</label>
+              <div className="sm:col-span-2 lg:col-span-1">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Rechercher</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
+                    <Search className="h-4 w-4 text-gray-400" />
                   </div>
                   <input
                     type="text"
                     placeholder="Marque, modèle, plaque..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-3 w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className="pl-10 pr-4 py-2 sm:py-3 w-full border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm sm:text-base"
                   />
                 </div>
               </div>
 
               {/* Status Filter */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Statut</label>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Statut</label>
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm sm:text-base"
                 >
                   <option value="all">Tous les statuts</option>
                   <option value="disponible">Disponible ({getStatusCount("disponible")})</option>
@@ -348,11 +347,11 @@ const exportToExcel = () => {
 
               {/* Type Filter */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Type de véhicule</label>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Type de véhicule</label>
                 <select
                   value={typeFilter}
                   onChange={(e) => setTypeFilter(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm sm:text-base"
                 >
                   <option value="all">Tous les types</option>
                   <option value="voiture">Voiture ({getTypeCount("voiture")})</option>
@@ -364,11 +363,11 @@ const exportToExcel = () => {
 
               {/* Sort By */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Trier par</label>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Trier par</label>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm sm:text-base"
                 >
                   <option value="newest">Plus récent</option>
                   <option value="oldest">Plus ancien</option>
@@ -387,16 +386,14 @@ const exportToExcel = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="mb-6 flex justify-between items-center bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="mb-4 sm:mb-6 flex justify-between items-center bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-sm border border-gray-100"
         >
-          <p className="text-gray-600 font-medium">
+          <p className="text-xs sm:text-sm text-gray-600 font-medium">
             {filteredVehicles.length} véhicule{filteredVehicles.length !== 1 ? 's' : ''} trouvé{filteredVehicles.length !== 1 ? 's' : ''}
           </p>
           {hasActiveFilters && (
-            <div className="flex items-center space-x-2 text-sm text-blue-600">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
-              </svg>
+            <div className="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm text-blue-600">
+              <Filter className="w-3 h-3 sm:w-4 sm:h-4" />
               <span>Filtres actifs</span>
             </div>
           )}
@@ -404,7 +401,7 @@ const exportToExcel = () => {
 
         {/* Vehicles Grid */}
         {loading ? (
-          <div className="flex justify-center items-center py-16">
+          <div className="flex justify-center items-center py-12 sm:py-16">
             <SpinnerLoading />
           </div>
         ) : filteredVehicles.length === 0 ? (
@@ -412,19 +409,11 @@ const exportToExcel = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
-            className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center"
+            className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-6 sm:p-12 text-center"
           >
-            <svg
-              className="h-16 w-16 text-gray-300 mx-auto mb-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2a4 4 0 014-4h4m0 0V7a4 4 0 00-8 0v4m8 0a4 4 0 11-8 0"></path>
-            </svg>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucun véhicule trouvé</h3>
-            <p className="text-gray-600 mb-6">
+            <Car className="h-12 w-12 sm:h-16 sm:w-16 text-gray-300 mx-auto mb-3 sm:mb-4" />
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2">Aucun véhicule trouvé</h3>
+            <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">
               {hasActiveFilters 
                 ? "Aucun véhicule ne correspond à vos critères de recherche" 
                 : "Aucun véhicule n'est enregistré dans le système"
@@ -435,7 +424,7 @@ const exportToExcel = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={clearFilters}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                className="bg-blue-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base"
               >
                 Effacer les filtres
               </motion.button>
@@ -446,11 +435,9 @@ const exportToExcel = () => {
               >
                 <Link
                   href="/vehicles/add"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center"
+                  className="bg-blue-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center text-sm sm:text-base"
                 >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                  </svg>
+                  <Plus className="w-4 h-4 mr-1 sm:mr-2" />
                   Ajouter un véhicule
                 </Link>
               </motion.div>
@@ -461,7 +448,7 @@ const exportToExcel = () => {
             initial="hidden"
             animate="visible"
             variants={containerVariants}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
           >
             <AnimatePresence>
               {filteredVehicles.map((vehicle) => (

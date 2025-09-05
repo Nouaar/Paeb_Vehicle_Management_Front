@@ -10,10 +10,10 @@ import { SpinnerLoading } from "@/components/ui/SpinnerLoading";
 import { Menu, X } from "lucide-react";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+const { user, loading } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
-  const [sidebarOpen, setSidebarOpen] = useState(false); // For mobile toggle
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!loading) {
@@ -21,6 +21,11 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       if (user && pathname === "/auth/login") router.replace("/");
     }
   }, [user, pathname, router, loading]);
+
+  // Close sidebar when route changes
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [pathname]);
 
   if (loading) return <SpinnerLoading />;
 
@@ -31,36 +36,32 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       {!isLoginPage && user && <Navbar />}
 
       <div className="flex flex-1">
-        {/* Mobile overlay sidebar */}
+        {/* Mobile sidebar overlay */}
         {!isLoginPage && user && (
           <>
             <div className="md:hidden">
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="m-2 p-2 rounded-md bg-gray-200 hover:bg-gray-300"
+                className="m-2 p-2 rounded-md bg-gray-200 hover:bg-gray-300 fixed top-16 z-30"
               >
                 <Menu className="h-6 w-6" />
               </button>
             </div>
 
             <div
-              className={`fixed inset-0 z-40 md:hidden transition-transform transform ${
-                sidebarOpen ? "translate-x-0" : "-translate-x-full"
+              className={`fixed inset-0 z-40 md:hidden transition-opacity duration-300 ${
+                sidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
               }`}
             >
               <div
-                className="absolute inset-0 bg-black/30"
+                className="absolute inset-0 bg-black/30 transition-opacity"
                 onClick={() => setSidebarOpen(false)}
               ></div>
-              <aside className="relative w-64 bg-white h-full shadow-lg">
-                <button
-                  onClick={() => setSidebarOpen(false)}
-                  className="absolute top-2 right-2 p-2 rounded-md hover:bg-gray-200"
-                >
-                  <X className="h-6 w-6" />
-                </button>
-                <UtilitySideBar />
-              </aside>
+              <div className={`relative transform transition-transform duration-300 ${
+                sidebarOpen ? "translate-x-0" : "-translate-x-full"
+              }`}>
+                <UtilitySideBar onClose={() => setSidebarOpen(false)} />
+              </div>
             </div>
           </>
         )}
@@ -72,7 +73,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
           </aside>
         )}
 
-        <main className="flex-1 p-4 overflow-y-auto">{children}</main>
+        <main className="flex-1 p-4 md:p-6 overflow-y-auto mt-16 md:mt-0">
+          {children}
+        </main>
       </div>
 
       {!isLoginPage && user && <Footer />}

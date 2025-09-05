@@ -8,7 +8,7 @@ export default function AddVehiclePage() {
 
   const handleAdd = async (data: any) => {
     try {
-      const response = await fetch("http://localhost:3001/api/vehicles", {
+      const response = await fetch("https://paeb-vehicle-management-backend.onrender.com/api/vehicles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

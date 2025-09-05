@@ -14,7 +14,7 @@ export default function UpdateVehiclePage() {
   useEffect(() => {
     const fetchVehicle = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/vehicles/${id}`);
+        const response = await fetch(`https://paeb-vehicle-management-backend.onrender.com/api/vehicles/${id}`);
         if (!response.ok) throw new Error("Erreur lors du chargement du véhicule");
         
         const data = await response.json();
@@ -37,7 +37,7 @@ export default function UpdateVehiclePage() {
 
   const handleUpdate = async (data: any) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/vehicles/${id}`, {
+      const response = await fetch(`https://paeb-vehicle-management-backend.onrender.com/api/vehicles/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

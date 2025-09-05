@@ -200,10 +200,10 @@ export default function MaintenanceForm({ initialData, onSubmit, submitLabel = "
               {/* Coût total */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">
-                  Coût total (€) <span className="text-red-500">*</span>
+                  Coût total (DT) <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-3 text-gray-500">€</span>
+                  <span className="absolute left-3 top-3 text-gray-500">DT</span>
                   <input
                     type="number"
                     name="coutTotal"
